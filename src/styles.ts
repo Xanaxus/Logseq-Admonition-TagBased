@@ -6,8 +6,10 @@
  * `.admonitionblock.<type>`. This stylesheet themes those native blocks, so
  * the user does not have to install it as a separate custom.css / theme.
  *
- * Source: `logseq-db-admonitions.css`. The colors use Logseq DB graph Radix
- * tokens (--rx-*), so they adapt to light/dark.
+ * Source: `logseq-db-admonitions.css` by sourcebert —
+ * https://gist.github.com/sourcebert/cbeb4799cc8f0925f23f8f76471da288
+ * The colors use Logseq DB graph Radix tokens (--rx-*), so they adapt to
+ * light/dark.
  */
 export const ADMONITION_CSS = `
 /* Admonitions (injected by logseq-admonitions plugin) */
