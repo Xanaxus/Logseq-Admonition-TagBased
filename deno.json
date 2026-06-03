@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@logseq/libs": "npm:@logseq/libs@^0.3.2"
+  },
+  "tasks": {
+    "build": "deno bundle --platform browser --minify -o dist/index.js src/index.ts",
+    "test": "deno run --quiet test/transform_test.ts"
+  }
+}

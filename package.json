@@ -1,0 +1,28 @@
+{
+  "name": "logseq-admonitions",
+  "description": "Tag-driven native admonitions for Logseq DB graphs",
+  "version": "1.0.0",
+  "author": "Xanaxus",
+  "license": "MIT",
+  "private": true,
+  "keywords": [
+    "logseq",
+    "logseq-plugin",
+    "logseq-db",
+    "admonition"
+  ],
+  "web": true,
+  "supportsDBOnly": true,
+  "effect": true,
+  "dependencies": {
+    "@logseq/libs": "^0.3.2"
+  },
+  "logseq": {
+    "id": "logseq-admonitions",
+    "title": "Admonitions",
+    "description": "Tag-driven native admonitions — rewrite #note / #caution / #tip into native #+BEGIN_ blocks and theme them",
+    "icon": "./icon.svg",
+    "main": "dist/index.html",
+    "minSDKVersion": "0.3.2"
+  }
+}

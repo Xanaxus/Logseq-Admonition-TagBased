@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+*.tgz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.local.json
+
+# Note: dist/ is intentionally NOT ignored — the built plugin is committed so it
+# can be loaded unpacked from a clone without a build step. Rebuild with
+# `deno task build` after changing src/.
