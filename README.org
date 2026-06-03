@@ -5,7 +5,7 @@ Tag-driven *native* admonitions for Logseq DB graphs.
 
 You write a =#tag=; the plugin rewrites it, in place, into Logseq's native
 =#+BEGIN_<TYPE> ... #+END_<TYPE>= admonition block — and ships the CSS that
-themes those blocks. One plugin, both halves.
+themes those blocks. 
 
 #+begin_quote
 Tag-driven trigger, rendered through Logseq's *built-in* admonitions rather
@@ -30,10 +30,9 @@ Rules, scanning *downward* from the tag:
 
 - Content *above* the tag stays outside the admonition.
 - Content *after* =\end= stays outside, as normal text.
-- The rewrite is *idempotent*: once a block contains =#+BEGIN_=, it is left alone.
+- Once a block contains #+BEGIN_, future rewrites will leave it unchanged.
 
 ** Examples
-
 No closer — everything below the tag falls in:
 
 #+begin_example
@@ -61,7 +60,7 @@ Only tags with a real native admonition block are handled:
 | =note= =tip= =pinned= =important= =warning= =caution= | =center= =example= =verse= |
 
 Other common callout names (=question=, =faq=, =success=, =danger=, =abstract=,
-=tldr=, =latex=, ...) have no native equivalent yet — that's the next milestone.
+=tldr=, =latex=, ...) have no native equivalent yet.
 
 * Build
 
