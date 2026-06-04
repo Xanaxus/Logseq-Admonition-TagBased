@@ -112,3 +112,5 @@ deno check src/index.ts   # typecheck
 The admonition styling is adapted from
 [[https://gist.github.com/sourcebert/cbeb4799cc8f0925f23f8f76471da288][this gist]]
 by sourcebert (=logseq-db-admonitions.css=).
+
+The Color theme is ripped from [[https://github.com/hdansou/Logseq-callout/blob/main/src/callouts.ts][hdansou/Logseq-callout]].
