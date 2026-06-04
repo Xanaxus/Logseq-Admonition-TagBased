@@ -12,6 +12,11 @@ Tag-driven trigger, rendered through Logseq's *built-in* admonitions rather
 than custom callout markup.
 #+end_quote
 
+* Preview
+
+#+CAPTION: Native (Note/Tip/Important/Pinned/Caution/Warning) and non-native (Attention/Danger/FAQ/Src) admonitions.
+[[./Example.png]]
+
 * How it works
 
 #+begin_example
@@ -51,16 +56,33 @@ Deleting a page cannot be undone
 Back up your graph regularly
 #+end_example
 
-* Supported tags (v1)
+* Supported tags
 
-Only tags with a real native admonition block are handled:
+** Native (v1)
+
+These rewrite straight into Logseq's native admonition blocks:
 
 | Colored (themed by the CSS)                          | Native, uncolored          |
 |------------------------------------------------------+----------------------------|
 | =note= =tip= =pinned= =important= =warning= =caution= | =center= =example= =verse= |
 
-Other common callout names (=question=, =faq=, =success=, =danger=, =abstract=,
-=tldr=, =latex=, ...) have no native equivalent yet.
+** Non-native (v2)
+
+Tags with no native admonition wrap into a semantically-close native *host* with
+a visible =**Label**= marker, then get their own color + icon via a per-block CSS
+overlay (so e.g. =#faq= is distinct from a plain =#note=):
+
+| Tag         | Color  | Host      |
+|-------------+--------+-----------|
+| =faq=       | blue   | NOTE      |
+| =danger=    | orange | WARNING   |
+| =attention= | green  | IMPORTANT |
+| =src=       | teal   | NOTE      |
+
+Edit the =NON_NATIVE= table in =src/overlays.ts= to change a tag's color
+(=COLOR_GROUPS= Radix tokens) or icon (a Tabler glyph code point), add tags, or
+remove them. The host only matters structurally — the overlay fully recolors and
+re-icons the box.
 
 * Build
 

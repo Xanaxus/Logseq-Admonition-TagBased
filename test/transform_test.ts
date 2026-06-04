@@ -9,6 +9,7 @@ import {
   earliest,
   findLiteralOpeners,
 } from '../src/transform.ts'
+import { detectLabelTag } from '../src/overlays.ts'
 
 let passed = 0
 let failed = 0
@@ -64,6 +65,36 @@ eq(
   'earliest opener wins when two callouts are present',
   earliest(findLiteralOpeners('#note alpha\n#tip beta'))?.keyword,
   'NOTE',
+)
+
+// --- Non-native tags (v2): wrap into a SEMANTIC host with a **Label** marker ---
+eq(
+  'non-native faq wraps into NOTE host with a **FAQ** marker (no #tag)',
+  wrap('#faq What is X?\nThe answer is Y'),
+  '#+BEGIN_NOTE\n**FAQ**\nWhat is X?\nThe answer is Y\n#+END_NOTE',
+)
+eq(
+  'non-native danger maps to the WARNING host (semantic mapping)',
+  (() => {
+    const o = earliest(findLiteralOpeners('#danger watch out'))!
+    return { tag: o.tag, keyword: o.keyword, nonNative: o.nonNative, label: o.label }
+  })(),
+  { tag: 'danger', keyword: 'WARNING', nonNative: true, label: 'Danger' },
+)
+eq(
+  'native opener stays native (no marker, no overlay)',
+  earliest(findLiteralOpeners('#caution x'))?.nonNative,
+  false,
+)
+eq(
+  'non-native src defaults to the NOTE host and respects \\end',
+  wrap('#src inline code\nmore\n\\end\nnext task'),
+  '#+BEGIN_NOTE\n**Src**\ninline code\nmore\n#+END_NOTE\nnext task',
+)
+eq(
+  'detectLabelTag reverses a **Label** marker back to its tag',
+  detectLabelTag('#+BEGIN_NOTE\n**FAQ**\nbody\n#+END_NOTE'),
+  'faq',
 )
 
 console.log(`\n${passed} passed, ${failed} failed`)

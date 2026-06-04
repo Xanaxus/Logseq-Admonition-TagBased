@@ -3,14 +3,23 @@
  *
  * Given a raw block's multiline content and the location of a callout opener,
  * produce the rewritten content with native `#+BEGIN_<TYPE>` / `#+END_<TYPE>`
- * markers. See test/transform_test.ts for the contract.
+ * markers. Non-native tags wrap into a NOTE host and keep their original tag as
+ * the first body line (so overlays can be rebuilt by re-detection). See
+ * test/transform_test.ts for the contract.
  */
-import { nativeKeyword } from './callouts'
+import { classifyTag } from './callouts'
 
 export interface Opener {
   index: number
   token: string
+  /** Normalized tag name, e.g. "faq" or "caution". */
+  tag: string
+  /** `#+BEGIN_<keyword>` to wrap with (native keyword, or a semantic host). */
   keyword: string
+  /** True for non-native tags: insert a `**Label**` marker + apply a CSS overlay. */
+  nonNative: boolean
+  /** Display label for non-native tags (the `**Label**` marker text). */
+  label?: string
 }
 
 /** DB-graph inline tag ref: `#[[<uuid>]]`. */
@@ -28,8 +37,10 @@ export const CLOSE_RE = /\n[ \t]*\\end[ \t]*(?=\n|$)/
 export function findLiteralOpeners(raw: string): Opener[] {
   const out: Opener[] = []
   for (const m of raw.matchAll(LITERAL_RE)) {
-    const keyword = nativeKeyword(m[1])
-    if (keyword) out.push({ index: m.index ?? 0, token: m[0], keyword })
+    const c = classifyTag(m[1])
+    if (c) {
+      out.push({ index: m.index ?? 0, token: m[0], tag: c.tag, keyword: c.keyword, nonNative: c.nonNative, label: c.label })
+    }
   }
   return out
 }
@@ -44,10 +55,11 @@ export function earliest(openers: Opener[]): Opener | null {
  * Rewrite raw content: the opener token becomes `#+BEGIN_<KEYWORD>`, and the
  * admonition closes at the first standalone `\end` line (replaced by
  * `#+END_<KEYWORD>`) or, absent that, at the end of the block. Content before
- * the opener is preserved verbatim.
+ * the opener is preserved verbatim. For non-native tags the original token is
+ * kept as the first body line.
  */
 export function buildWrapped(raw: string, opener: Opener): string {
-  const { index, token, keyword } = opener
+  const { index, token, keyword, nonNative } = opener
   const before = raw.slice(0, index)
 
   // Everything after the opener token; trim inline spaces so BEGIN sits alone
@@ -55,7 +67,11 @@ export function buildWrapped(raw: string, opener: Opener): string {
   let rest = raw.slice(index + token.length).replace(/^[ \t]+/, '')
   if (rest.length > 0 && !rest.startsWith('\n')) rest = '\n' + rest
 
-  const head = before + `#+BEGIN_${keyword}`
+  // Non-native: replace the tag with a visible `**Label**` marker (no tag pill /
+  // backlink). It serves as both the label and the re-detection key for overlays.
+  const keep = nonNative ? `\n**${opener.label ?? opener.tag}**` : ''
+
+  const head = before + `#+BEGIN_${keyword}` + keep
   let tail = rest
 
   CLOSE_RE.lastIndex = 0

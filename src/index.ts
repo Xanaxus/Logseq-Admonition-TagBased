@@ -1,5 +1,5 @@
 import '@logseq/libs'
-import { CALLOUTS, nativeKeyword } from './callouts'
+import { CALLOUTS, classifyTag } from './callouts'
 import { ADMONITION_CSS } from './styles'
 import {
   buildWrapped,
@@ -8,6 +8,7 @@ import {
   REF_RE,
   type Opener,
 } from './transform'
+import { detectLabelTag, generateOverlayCSS, NON_NATIVE } from './overlays'
 
 /**
  * logseq-admonitions
@@ -29,9 +30,6 @@ import {
  * The native block is then themed by the injected CSS (see styles.ts).
  */
 
-// === debug ===
-// Verified 2026-06-03: getBlock() returns raw content; detection + rewrite work
-// in DB graphs. Flip to true to log raw block content while diagnosing.
 const DEBUG = false
 function dbg(...args: unknown[]): void {
   if (DEBUG) console.log('[admonition]', ...args)
@@ -41,6 +39,9 @@ function dbg(...args: unknown[]): void {
 
 /** Lowercased title of a class/page referenced by uuid, cached for the session. */
 const titleCache = new Map<string, string | null>()
+
+/** uuid -> non-native tag name, for per-block CSS overlays. Rebuilt each scan. */
+const decorated = new Map<string, string>()
 
 async function resolveRefTitle(uuid: string): Promise<string | null> {
   const cached = titleCache.get(uuid)
@@ -62,13 +63,9 @@ async function resolveRefTitle(uuid: string): Promise<string | null> {
   return norm
 }
 
-// === opener detection ===
 
 /**
- * Find the earliest callout opener in the raw block content. Handles both the
- * DB-graph inline ref form `#[[uuid]]` and a literal `#name` (file graphs, or
- * a tag Logseq has not yet converted). The literal form is resolved purely in
- * transform.ts; the ref form needs an async title lookup, so it lives here.
+ Find the earliest callout opener in the raw block content. Handles both the DB-graph inline ref form `#[[uuid]]` and a literal `#name` (file graphs, or a tag Logseq has not yet converted). The literal form is resolved purely in transform.ts; the ref form needs an async title lookup, so it lives here.
  */
 async function findOpener(raw: string): Promise<Opener | null> {
   const candidates: Opener[] = findLiteralOpeners(raw)
@@ -76,18 +73,15 @@ async function findOpener(raw: string): Promise<Opener | null> {
   REF_RE.lastIndex = 0
   for (const m of raw.matchAll(REF_RE)) {
     const title = await resolveRefTitle(m[1])
-    const keyword = title ? nativeKeyword(title) : undefined
-    if (keyword) candidates.push({ index: m.index ?? 0, token: m[0], keyword })
+    const c = title ? classifyTag(title) : null
+    if (c) {
+      candidates.push({ index: m.index ?? 0, token: m[0], tag: c.tag, keyword: c.keyword, nonNative: c.nonNative })
+    }
   }
 
   return earliest(candidates)
 }
 
-// === rewrite ===
-
-// In DEBUG, log the raw content of any block that *looks* like it might hold a
-// callout — even when detection fails — so we can confirm exactly what shape
-// getBlock() returns in this graph (inline `#[[uuid]]` ref vs. rendered text).
 const INTERESTING_RE =
   /#\[\[|#(note|tip|pinned|important|warning|caution|center|example|verse)\b/i
 
@@ -102,18 +96,24 @@ async function processBlock(uuid: string): Promise<void> {
     dbg('raw block content for', uuid, '=>', JSON.stringify(raw))
   }
 
-  // Already a native admonition (or mid-conversion) — leave it alone. This is
-  // also what makes the rewrite idempotent and prevents re-trigger loops.
-  if (raw.includes('#+BEGIN_')) return
+  // non-native host carries a `**Label**` marker, so re-detect it here to (re)register the per-block overlay — this is what makes overlays survive reloads.
+  if (raw.includes('#+BEGIN_')) {
+    const tag = detectLabelTag(raw)
+    if (tag) decorated.set(uuid, tag)
+    return
+  }
 
   const opener = await findOpener(raw)
   if (!opener) return
 
   const wrapped = buildWrapped(raw, opener)
-  if (wrapped === raw) return
+  if (wrapped !== raw) {
+    dbg('rewriting', uuid, '=>', JSON.stringify(wrapped))
+    await logseq.Editor.updateBlock(uuid, wrapped)
+  }
 
-  dbg('rewriting', uuid, '=>', JSON.stringify(wrapped))
-  await logseq.Editor.updateBlock(uuid, wrapped)
+  // Non-native tags render via a recolored NOTE host + per-block CSS overlay.
+  if (opener.nonNative) decorated.set(uuid, opener.tag)
 }
 
 // === scanning ===
@@ -147,7 +147,11 @@ async function scanCurrentPage(): Promise<void> {
     )
     if (!blocks) return
 
+    decorated.clear()
     await walk(blocks as TreeBlock[], editingUuid)
+    // Regenerate per-block overlays for non-native tags found this scan. An
+    // empty payload also clears stale overlays from the previous page.
+    logseq.provideStyle({ key: 'admonition-overlays', style: generateOverlayCSS(decorated) })
   } catch (err) {
     console.warn('[admonition] scan error:', err)
   }
@@ -174,8 +178,10 @@ async function main(): Promise<void> {
     if (e.blocks && e.blocks.length > 0) debouncedScan(400)
   })
 
-  // Slash command for each callout type: drop the opener tag at the cursor.
-  for (const name of Object.keys(CALLOUTS)) {
+  // Slash command for each callout type (native + non-native): drop the opener
+  // tag at the cursor.
+  const allTags = [...Object.keys(CALLOUTS), ...Object.keys(NON_NATIVE)]
+  for (const name of allTags) {
     logseq.Editor.registerSlashCommand(`Admonition: ${name}`, async () => {
       await logseq.Editor.insertAtEditingCursor(`#${name}\n`)
     })

@@ -106,4 +106,21 @@ export const ADMONITION_CSS = `
   --admonition-accent-color: var(--rx-tomato-09);
   --admonition-element-bg: var(--rx-tomato-07);
 }
+
+/* Type label — a small uppercase heading at the top of each native box. */
+.admonitionblock > .admonition-icon + div::before {
+  display: block;
+  color: var(--admonition-accent-color);
+  text-transform: uppercase;
+  font-size: .72em;
+  font-weight: 700;
+  letter-spacing: .05em;
+  margin-bottom: .25em;
+}
+.admonitionblock.note > .admonition-icon + div::before { content: "Note"; }
+.admonitionblock.tip > .admonition-icon + div::before { content: "Tip"; }
+.admonitionblock.pinned > .admonition-icon + div::before { content: "Pinned"; }
+.admonitionblock.important > .admonition-icon + div::before { content: "Important"; }
+.admonitionblock.warning > .admonition-icon + div::before { content: "Warning"; }
+.admonitionblock.caution > .admonition-icon + div::before { content: "Caution"; }
 `
