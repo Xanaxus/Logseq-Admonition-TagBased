@@ -27,8 +27,8 @@ export const ADMONITION_CSS = `
 }
 
 .admonitionblock > .admonition-icon {
-  color: var(--admonition-accent-color);
-  border-right: .15em solid currentColor;
+  color: var(--admonition-color);
+  border-right: .15em solid var(--admonition-accent-color);
 }
 
 .admonitionblock > .admonition-icon > svg {
@@ -67,42 +67,42 @@ export const ADMONITION_CSS = `
 
 .admonitionblock.note {
   --admonition-bg: var(--rx-amber-03);
-  --admonition-color: var(--rx-amber-12);
+  --admonition-color: var(--rx-amber-09);
   --admonition-accent-color: var(--rx-amber-08);
   --admonition-element-bg: var(--rx-amber-05);
 }
 
 .admonitionblock.tip {
   --admonition-bg: var(--rx-cyan-03);
-  --admonition-color: var(--rx-cyan-12);
+  --admonition-color: var(--rx-cyan-09);
   --admonition-accent-color: var(--rx-cyan-08);
   --admonition-element-bg: var(--rx-cyan-05);
 }
 
 .admonitionblock.pinned {
   --admonition-bg: var(--rx-teal-03);
-  --admonition-color: var(--rx-teal-12);
+  --admonition-color: var(--rx-teal-09);
   --admonition-accent-color: var(--rx-teal-08);
   --admonition-element-bg: var(--rx-teal-05);
 }
 
 .admonitionblock.important {
   --admonition-bg: var(--rx-red-03);
-  --admonition-color: var(--rx-red-12);
+  --admonition-color: var(--rx-red-09);
   --admonition-accent-color: var(--rx-red-08);
   --admonition-element-bg: var(--rx-red-05);
 }
 
 .admonitionblock.warning {
   --admonition-bg: var(--rx-orange-05);
-  --admonition-color: var(--rx-orange-12);
+  --admonition-color: var(--rx-orange-09);
   --admonition-accent-color: var(--rx-orange-09);
   --admonition-element-bg: var(--rx-orange-07);
 }
 
 .admonitionblock.caution {
   --admonition-bg: var(--rx-tomato-05);
-  --admonition-color: var(--rx-tomato-12);
+  --admonition-color: var(--rx-tomato-09);
   --admonition-accent-color: var(--rx-tomato-09);
   --admonition-element-bg: var(--rx-tomato-07);
 }
@@ -112,7 +112,7 @@ export const ADMONITION_CSS = `
   display: block;
   color: var(--admonition-accent-color);
   text-transform: uppercase;
-  font-size: .72em;
+  font-size: .80em;
   font-weight: 700;
   letter-spacing: .05em;
   margin-bottom: .25em;

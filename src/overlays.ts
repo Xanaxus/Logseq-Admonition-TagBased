@@ -33,28 +33,28 @@ export interface ColorTokens {
 export const COLOR_GROUPS: Record<ColorGroup, ColorTokens> = {
   blue: {
     bg: 'var(--rx-blue-04-alpha, rgba(96, 165, 250, 0.15))',
-    border: 'var(--rx-blue-06, #2563eb)',
+    border: 'var(--rx-blue-08, #2563eb)',
     text: 'var(--rx-blue-11, #1d4ed8)',
     textDark: 'var(--rx-blue-09, #60a5fa)',
     badge: 'var(--rx-blue-05-alpha, rgba(96, 165, 250, 0.25))',
   },
   green: {
     bg: 'var(--rx-green-04-alpha, rgba(74, 222, 128, 0.15))',
-    border: 'var(--rx-green-06, #16a34a)',
+    border: 'var(--rx-green-08, #16a34a)',
     text: 'var(--rx-green-11, #15803d)',
     textDark: 'var(--rx-green-09, #4ade80)',
     badge: 'var(--rx-green-05-alpha, rgba(74, 222, 128, 0.25))',
   },
   teal: {
     bg: 'var(--rx-teal-04-alpha, rgba(45, 212, 191, 0.15))',
-    border: 'var(--rx-teal-06, #0d9488)',
+    border: 'var(--rx-teal-08, #0d9488)',
     text: 'var(--rx-teal-11, #0f766e)',
     textDark: 'var(--rx-teal-09, #2dd4bf)',
     badge: 'var(--rx-teal-05-alpha, rgba(45, 212, 191, 0.25))',
   },
   orange: {
     bg: 'var(--rx-orange-04-alpha, rgba(251, 146, 60, 0.15))',
-    border: 'var(--rx-orange-06, #ea580c)',
+    border: 'var(--rx-orange-08, #ea580c)',
     text: 'var(--rx-orange-11, #c2410c)',
     textDark: 'var(--rx-orange-09, #fb923c)',
     badge: 'var(--rx-orange-05-alpha, rgba(251, 146, 60, 0.25))',
@@ -63,8 +63,8 @@ export const COLOR_GROUPS: Record<ColorGroup, ColorTokens> = {
 
 export const NON_NATIVE: Record<string, NonNativeDef> = {
   faq:       { label: 'FAQ',       color: 'blue', glyph: 'f89c' }, // bolt 
-  danger:    { label: 'Danger',    color: 'orange', glyph: 'ecc6' }, // alert-octagon
-  attention: { label: 'Attention', color: 'green', glyph: 'ed07' }, // bell-ringing
+  danger:    { label: 'Danger',    color: 'orange', glyph: 'f292' }, //skull 
+  attention: { label: 'Attention', color: 'green', glyph: 'f819' }, // bell-ringing
   src:       { label: 'Src',       color: 'teal', glyph: 'ebb2' }, // terminal
 }
 
@@ -114,7 +114,7 @@ ${adm} > .admonition-icon::after {
   content: "\\${def.glyph}";
   font-family: "tabler-icons";
   font-size: 1.15em;
-  color: var(--admonition-accent-color);
+  color: var(--admonition-color);
 }
 /* hide the host's native type label — this block's label is its **${def.label}** marker */
 ${adm} > .admonition-icon + div::before { content: none; }
